@@ -17,12 +17,12 @@ def generate_summary(ypred, cps, n_frames, nfps, positions, proportion=0.15):
         positions = positions.astype(np.int32)
     if positions[-1] != n_frames:
         positions = np.concatenate([positions, [n_frames]])
-    for i in xrange(len(positions) - 1):
+    for i in range(len(positions) - 1):
         pos_left,pos_right = positions[i],positions[i+1]
         frame_scores[pos_left:pos_right] = ypred[i]
 
     seg_score = []
-    for seg_idx in xrange(n_segs):
+    for seg_idx in range(n_segs):
         start,end = int(cps[seg_idx,0]),int(cps[seg_idx,1]+1)
         scores = frame_scores[start:end]
         seg_score.append(float(scores.mean()))
@@ -31,7 +31,7 @@ def generate_summary(ypred, cps, n_frames, nfps, positions, proportion=0.15):
     picks = knapsack_dp(seg_score, nfps, n_segs, limits)
 
     summary = np.zeros((1), dtype=np.float32) # this element should be deleted
-    for seg_idx in xrange(n_segs):
+    for seg_idx in range(n_segs):
         nf = nfps[seg_idx]
         if seg_idx in picks:
             tmp = np.ones((nf), dtype=np.float32)
@@ -64,7 +64,7 @@ def evaluate_summary(machine_summary, user_summary, eval_metric='avg'):
     prec_arr = []
     rec_arr = []
 
-    for user_idx in xrange(n_users):
+    for user_idx in range(n_users):
         gt_summary = user_summary[user_idx,:]
         overlap_duration = (machine_summary * gt_summary).sum()
         precision = overlap_duration / (machine_summary.sum() + 1e-8)
@@ -86,7 +86,7 @@ def evaluate_summary(machine_summary, user_summary, eval_metric='avg'):
         max_idx = np.argmax(f_scores)
         final_prec = prec_arr[max_idx]
         final_rec = rec_arr[max_idx]
-    
+
     return final_f_score,final_prec,final_rec
 
 if __name__ == '__main__':
